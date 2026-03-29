@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>わりわりアイランド</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean: #0ea5e9;
+    --ocean-dark: #0369a1;
+    --sand: #fef3c7;
+    --sand-dark: #fde68a;
+    --palm: #16a34a;
+    --coral: #f97316;
+    --coral-dark: #ea580c;
+    --sun: #fbbf24;
+    --sun-dark: #f59e0b;
+    --coin: #fcd34d;
+    --correct: #22c55e;
+    --wrong: #ef4444;
+    --text-dark: #1e3a5f;
+    --text-mid: #2563eb;
+    --white: #ffffff;
+    --shadow: 0 4px 16px rgba(0,0,0,0.18);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background: linear-gradient(180deg, #38bdf8 0%, #7dd3fc 40%, #bae6fd 70%, #e0f2fe 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* 背景の波 */
+  body::before {
+    content: '';
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 180px;
+    background: linear-gradient(180deg, transparent, #0c4a6e 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 560px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== 共通コンポーネント ===== */
+  .screen {
+    width: 100%;
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px 24px;
+  }
+  .screen.active { display: flex; }
+
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    width: 100%;
+  }
+
+  .btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 900;
+    font-size: 1.3rem;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    padding: 16px 24px;
+    width: 100%;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+    letter-spacing: 0.04em;
+  }
+  .btn:active { transform: scale(0.95); }
+
+  .btn-ocean {
+    background: linear-gradient(135deg, var(--ocean), var(--ocean-dark));
+    color: var(--white);
+    box-shadow: 0 4px 0 var(--ocean-dark), var(--shadow-sm);
+  }
+  .btn-coral {
+    background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+    color: var(--white);
+    box-shadow: 0 4px 0 var(--coral-dark), var(--shadow-sm);
+  }
+  .btn-sun {
+    background: linear-gradient(135deg, var(--sun), var(--sun-dark));
+    color: var(--text-dark);
+    box-shadow: 0 4px 0 var(--sun-dark), var(--shadow-sm);
+  }
+  .btn-palm {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: var(--white);
+    box-shadow: 0 4px 0 #15803d, var(--shadow-sm);
+  }
+
+  /* ===== タイトル画面 ===== */
+  #screen-title {
+    gap: 16px;
+    padding-top: 24px;
+  }
+
+  .title-logo {
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .title-logo .island-emoji {
+    font-size: 3.5rem;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+  .title-logo h1 {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-shadow: 3px 3px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(14,165,233,0.4);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+  }
+  .title-logo p {
+    font-size: 0.95rem;
+    color: var(--ocean-dark);
+    margin-top: 4px;
+    font-weight: 700;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ocean-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mode-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 900;
+    border: 3px solid transparent;
+    border-radius: 18px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .mode-btn:active { transform: scale(0.97); }
+  .mode-btn .mode-name {
+    font-size: 1.25rem;
+    display: block;
+    color: var(--text-dark);
+  }
+  .mode-btn .mode-desc {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .mode-btn .mode-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.2rem;
+  }
+  .mode-btn.selected {
+    border-color: var(--ocean);
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    box-shadow: 0 0 0 3px rgba(14,165,233,0.3);
+  }
+  .mode-btn:not(.selected) {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  .time-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .time-btn {
+    flex: 1;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 14px 8px;
+    border-radius: 14px;
+    border: 3px solid #e2e8f0;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-dark);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .time-btn:active { transform: scale(0.95); }
+  .time-btn.selected {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: var(--sun-dark);
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.3);
+  }
+
+  .highscore-display {
+    display: flex;
+    gap: 8px;
+  }
+  .hs-item {
+    flex: 1;
+    background: linear-gradient(135deg, #fef9c3, #fef3c7);
+    border-radius: 14px;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid var(--sand-dark);
+  }
+  .hs-label { font-size: 0.75rem; color: #92400e; font-weight: 700; }
+  .hs-value { font-size: 1.4rem; font-weight: 900; color: #92400e; }
+  .hs-unit { font-size: 0.8rem; color: #b45309; font-weight: 700; }
+
+  /* ===== ゲームプレイ画面 ===== */
+  #screen-play {
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  /* タイマー＆スコアバー */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: rgba(255,255,255,0.85);
+    border-radius: 18px;
+    padding: 10px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .timer-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .timer-icon { font-size: 1.4rem; }
+  .timer-num {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--ocean-dark);
+    min-width: 2.2ch;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .timer-num.danger { color: var(--wrong); animation: pulse 0.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #92400e;
+  }
+  .coin-icon { font-size: 1.6rem; }
+
+  .combo-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--coral);
+    min-width: 60px;
+    justify-content: flex-end;
+  }
+  .combo-display.hidden { opacity: 0; }
+
+  /* 問題カード */
+  .problem-card {
+    background: linear-gradient(135deg, #ffffff, #f0f9ff);
+    border-radius: 24px;
+    padding: 28px 20px 24px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    text-align: center;
+    border: 3px solid #bae6fd;
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(251,191,36,0.3), transparent);
+    border-radius: 50%;
+  }
+
+  .problem-text {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    letter-spacing: 0.02em;
+  }
+
+  .problem-op {
+    color: var(--ocean);
+  }
+  .problem-eq {
+    color: var(--ocean-dark);
+  }
+
+  .answer-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 88px;
+    height: 72px;
+    background: #f0f9ff;
+    border: 3px solid #bae6fd;
+    border-radius: 16px;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--text-dark);
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    cursor: default;
+    padding: 0 12px;
+  }
+  .answer-box.active {
+    border-color: var(--ocean);
+    background: #e0f2fe;
+    box-shadow: 0 0 0 4px rgba(14,165,233,0.25);
+  }
+  .answer-box.correct-flash {
+    border-color: var(--correct);
+    background: #f0fdf4;
+    box-shadow: 0 0 0 4px rgba(34,197,94,0.3);
+  }
+  .answer-box.wrong-flash {
+    border-color: var(--wrong);
+    background: #fef2f2;
+    box-shadow: 0 0 0 4px rgba(239,68,68,0.3);
+    animation: shake 0.4s ease;
+  }
+
+  .amari-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--coral);
+    margin: 0 4px;
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  /* テンキー */
+  .numpad-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .numpad-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 900;
+    font-size: 1.8rem;
+    height: 76px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .numpad-btn:active { transform: scale(0.9); }
+
+  .numpad-btn.digit {
+    background: linear-gradient(135deg, #ffffff, #f1f5f9);
+    color: var(--text-dark);
+    box-shadow: 0 4px 0 #cbd5e1, var(--shadow-sm);
+    border: 2px solid #e2e8f0;
+  }
+  .numpad-btn.clear {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: var(--wrong);
+    box-shadow: 0 4px 0 #fca5a5, var(--shadow-sm);
+    border: 2px solid #fca5a5;
+    font-size: 1.3rem;
+  }
+  .numpad-btn.backspace {
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    color: var(--coral);
+    box-shadow: 0 4px 0 #fdba74, var(--shadow-sm);
+    border: 2px solid #fdba74;
+    font-size: 1.5rem;
+  }
+
+  .kakutei-btn {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 900;
+    font-size: 1.3rem;
+    height: 68px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--ocean), var(--ocean-dark));
+    color: var(--white);
+    box-shadow: 0 4px 0 var(--ocean-dark), var(--shadow-sm);
+    width: 100%;
+    transition: transform 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+    letter-spacing: 0.08em;
+    display: none;
+  }
+  .kakutei-btn:active { transform: scale(0.96); }
+  .kakutei-btn.visible { display: block; }
+
+  /* キャラクター */
+  .character-area {
+    position: relative;
+    height: 80px;
+    width: 100%;
+  }
+
+  .character {
+    position: absolute;
+    right: 12px;
+    bottom: 0;
+    width: 80px;
+    height: 80px;
+  }
+
+  /* フィードバックポップアップ */
+  .feedback-popup {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: var(--white);
+    border-radius: 24px;
+    padding: 20px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    z-index: 100;
+    pointer-events: none;
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .feedback-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .feedback-popup .popup-text {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--correct);
+  }
+  .feedback-popup .popup-coins {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #92400e;
+    margin-top: 4px;
+  }
+
+  /* コインアニメーション */
+  .coin-fly {
+    position: fixed;
+    font-size: 1.8rem;
+    pointer-events: none;
+    z-index: 99;
+    animation: coinFly 0.8s ease-out forwards;
+  }
+  @keyframes coinFly {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+  }
+
+  /* コンボ炎 */
+  .combo-flame {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 98;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .combo-flame.show { opacity: 1; }
+
+  /* 画面全体シェイク */
+  .screen-shake {
+    animation: screenShake 0.4s ease;
+  }
+  @keyframes screenShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+  }
+
+  /* ===== リザルト画面 ===== */
+  #screen-result {
+    gap: 14px;
+    padding-top: 28px;
+  }
+
+  .result-title {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+  }
+
+  .result-score-card {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 24px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 3px solid var(--sun-dark);
+    width: 100%;
+  }
+  .result-score-num {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #92400e;
+  }
+  .result-score-unit {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #b45309;
+  }
+  .result-hs-badge {
+    display: inline-block;
+    background: var(--coral);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 900;
+    padding: 4px 16px;
+    border-radius: 99px;
+    margin-top: 8px;
+    animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+
+  .weak-card {
+    background: #fff7ed;
+    border-radius: 18px;
+    padding: 16px;
+    border: 2px solid #fdba74;
+    width: 100%;
+  }
+  .weak-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--coral-dark);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .weak-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  .weak-bar-bg {
+    flex: 1;
+    height: 12px;
+    background: #fed7aa;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .weak-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral), var(--coral-dark));
+    border-radius: 99px;
+    transition: width 0.8s ease;
+  }
+  .weak-count {
+    font-size: 0.85rem;
+    color: var(--coral);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .message-card {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 18px;
+    padding: 16px;
+    border: 2px solid #86efac;
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #15803d;
+  }
+
+  .result-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* ===== SVGキャラクター（カニ） ===== */
+  .crab-svg { width: 80px; height: 80px; }
+
+  /* ===== ニガテ記録の視覚化 ===== */
+  .weak-none {
+    font-size: 0.95rem;
+    color: #64748b;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  /* ===== ページ下のヤシの木装飾 ===== */
+  .palm-deco {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    font-size: 4rem;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .palm-deco.right {
+    left: auto;
+    right: 0;
+    transform: scaleX(-1);
+  }
+</style>
+</head>
+<body>
+
+<div class="palm-deco">🌴</div>
+<div class="palm-deco right">🌴</div>
+
+<div id="app">
+
+  <!-- ===== タイトル画面 ===== -->
+  <div id="screen-title" class="screen active">
+    <div class="title-logo">
+      <span class="island-emoji">🏝️</span>
+      <h1>わりわりアイランド</h1>
+      <p>さんすう わり算 れんしゅうゲーム</p>
+    </div>
+
+    <div class="card">
+      <div class="section-label">🎯 モードをえらぼう</div>
+      <div class="mode-buttons">
+        <button class="mode-btn selected" data-mode="none" onclick="UI.selectMode('none')">
+          <span class="mode-name">🌊 あまりのない島</span>
+          <span class="mode-desc">わり算の きほんをれんしゅう</span>
+          <span class="mode-icon">🐠</span>
+        </button>
+        <button class="mode-btn" data-mode="remainder" onclick="UI.selectMode('remainder')">
+          <span class="mode-name">🌺 あまりのある島</span>
+          <span class="mode-desc">あまりもこたえる！むずかしい！</span>
+          <span class="mode-icon">🦀</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">⏱️ じかんをえらぼう</div>
+      <div class="time-buttons">
+        <button class="time-btn selected" data-time="60" onclick="UI.selectTime(60)">60びょう</button>
+        <button class="time-btn" data-time="90" onclick="UI.selectTime(90)">90びょう</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">🏆 ハイスコア</div>
+      <div class="highscore-display">
+        <div class="hs-item">
+          <div class="hs-label">🌊 あまりなし</div>
+          <div class="hs-value" id="hs-none">0</div>
+          <div class="hs-unit">コイン</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-label">🌺 あまりあり</div>
+          <div class="hs-value" id="hs-remainder">0</div>
+          <div class="hs-unit">コイン</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
+      🚀 スタート！
+    </button>
+  </div>
+
+  <!-- ===== ゲームプレイ画面 ===== -->
+  <div id="screen-play" class="screen">
+    <!-- ステータスバー -->
+    <div class="status-bar">
+      <div class="timer-display">
+        <span class="timer-icon">⏱️</span>
+        <span class="timer-num" id="timer-num">60</span>
+      </div>
+      <div class="combo-display hidden" id="combo-display">
+        🔥 <span id="combo-num">0</span>れんぞく × <span id="combo-multi">1</span>
+      </div>
+      <div class="score-display">
+        <span class="coin-icon">🪙</span>
+        <span id="score-num">0</span>
+      </div>
+    </div>
+
+    <!-- 問題カード -->
+    <div class="problem-card" id="problem-card">
+      <div class="problem-text" id="problem-text">
+        <!-- JSで生成 -->
+      </div>
+    </div>
+
+    <!-- テンキーエリア -->
+    <div class="numpad-area">
+      <div class="numpad">
+        <button class="numpad-btn digit" onclick="Input.press(7)">7</button>
+        <button class="numpad-btn digit" onclick="Input.press(8)">8</button>
+        <button class="numpad-btn digit" onclick="Input.press(9)">9</button>
+        <button class="numpad-btn digit" onclick="Input.press(4)">4</button>
+        <button class="numpad-btn digit" onclick="Input.press(5)">5</button>
+        <button class="numpad-btn digit" onclick="Input.press(6)">6</button>
+        <button class="numpad-btn digit" onclick="Input.press(1)">1</button>
+        <button class="numpad-btn digit" onclick="Input.press(2)">2</button>
+        <button class="numpad-btn digit" onclick="Input.press(3)">3</button>
+        <button class="numpad-btn clear" onclick="Input.clear()">C</button>
+        <button class="numpad-btn digit" onclick="Input.press(0)">0</button>
+        <button class="numpad-btn backspace" onclick="Input.backspace()">⌫</button>
+      </div>
+      <!-- あまりありモード時のみ表示 -->
+      <button class="kakutei-btn" id="kakutei-btn" onclick="Input.kakutei()">
+        ✅ かくてい（→あまりへ）
+      </button>
+    </div>
+
+    <!-- キャラクター -->
+    <div class="character-area">
+      <div class="character" id="character">
+        <!-- SVGカニ -->
+        <svg class="crab-svg" viewBox="0 0 80 80" id="crab-svg">
+          <!-- 胴体 -->
+          <ellipse cx="40" cy="45" rx="22" ry="16" fill="#f97316"/>
+          <!-- 甲羅模様 -->
+          <ellipse cx="40" cy="45" rx="16" ry="10" fill="#ea580c" opacity="0.5"/>
+          <!-- 目（デフォルト：笑顔） -->
+          <g id="eyes-happy">
+            <circle cx="33" cy="34" r="5" fill="white"/>
+            <circle cx="47" cy="34" r="5" fill="white"/>
+            <circle cx="34" cy="34" r="3" fill="#1e3a5f"/>
+            <circle cx="48" cy="34" r="3" fill="#1e3a5f"/>
+            <circle cx="35" cy="33" r="1" fill="white"/>
+            <circle cx="49" cy="33" r="1" fill="white"/>
+          </g>
+          <!-- 目（困り顔） -->
+          <g id="eyes-worried" display="none">
+            <circle cx="33" cy="34" r="5" fill="white"/>
+            <circle cx="47" cy="34" r="5" fill="white"/>
+            <circle cx="33" cy="35" r="3" fill="#1e3a5f"/>
+            <circle cx="47" cy="35" r="3" fill="#1e3a5f"/>
+            <!-- 眉 -->
+            <line x1="29" y1="29" x2="37" y2="32" stroke="#1e3a5f" stroke-width="2" stroke-linecap="round"/>
+            <line x1="43" y1="32" x2="51" y2="29" stroke="#1e3a5f" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <!-- 目（焦り顔） -->
+          <g id="eyes-hurry" display="none">
+            <circle cx="33" cy="34" r="5" fill="white"/>
+            <circle cx="47" cy="34" r="5" fill="white"/>
+            <circle cx="33" cy="34" r="4" fill="#1e3a5f"/>
+            <circle cx="47" cy="34" r="4" fill="#1e3a5f"/>
+            <circle cx="34" cy="33" r="1.5" fill="white"/>
+            <circle cx="48" cy="33" r="1.5" fill="white"/>
+            <!-- 汗 -->
+            <text x="52" y="28" font-size="10" fill="#38bdf8">💧</text>
+          </g>
+          <!-- 口（笑い） -->
+          <path id="mouth-happy" d="M 33 52 Q 40 58 47 52" stroke="#1e3a5f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- 口（への字） -->
+          <path id="mouth-worried" d="M 33 55 Q 40 51 47 55" stroke="#1e3a5f" stroke-width="2.5" fill="none" stroke-linecap="round" display="none"/>
+          <!-- 口（驚き） -->
+          <ellipse id="mouth-hurry" cx="40" cy="54" rx="4" ry="3" fill="#1e3a5f" display="none"/>
+          <!-- 左ハサミ -->
+          <g>
+            <rect x="10" y="38" width="12" height="8" rx="4" fill="#f97316" transform="rotate(-20,16,42)"/>
+            <ellipse cx="8" cy="36" rx="6" ry="4" fill="#ea580c" transform="rotate(-20,8,36)"/>
+            <ellipse cx="8" cy="43" rx="5" ry="3" fill="#ea580c" transform="rotate(-20,8,43)"/>
+          </g>
+          <!-- 右ハサミ -->
+          <g>
+            <rect x="58" y="38" width="12" height="8" rx="4" fill="#f97316" transform="rotate(20,64,42)"/>
+            <ellipse cx="72" cy="36" rx="6" ry="4" fill="#ea580c" transform="rotate(20,72,36)"/>
+            <ellipse cx="72" cy="43" rx="5" ry="3" fill="#ea580c" transform="rotate(20,72,43)"/>
+          </g>
+          <!-- 左足 -->
+          <line x1="22" y1="50" x2="10" y2="62" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+          <line x1="26" y1="54" x2="14" y2="66" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+          <line x1="30" y1="57" x2="20" y2="70" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+          <!-- 右足 -->
+          <line x1="58" y1="50" x2="70" y2="62" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+          <line x1="54" y1="54" x2="66" y2="66" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+          <line x1="50" y1="57" x2="60" y2="70" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== リザルト画面 ===== -->
+  <div id="screen-result" class="screen">
+    <div class="title-logo" style="margin-bottom:0;">
+      <span style="font-size:2.5rem;">🏆</span>
+    </div>
+    <div class="result-title">けっか発表！</div>
+
+    <div class="result-score-card">
+      <div style="font-size:1rem;font-weight:700;color:#b45309;margin-bottom:4px;">ゲットしたコイン</div>
+      <div>
+        <span class="result-score-num" id="result-score">0</span>
+        <span class="result-score-unit"> コイン</span>
+      </div>
+      <div id="hs-badge" class="result-hs-badge" style="display:none;">🎉 ハイスコア更新！</div>
+    </div>
+
+    <div class="weak-card" id="weak-card">
+      <div class="weak-title">😅 ニガテな わる数</div>
+      <div id="weak-list"></div>
+    </div>
+
+    <div class="message-card" id="result-message"></div>
+
+    <div class="result-buttons">
+      <button class="btn btn-coral" onclick="Game.start()">🔄 もういちど！</button>
+      <button class="btn btn-ocean" onclick="UI.showTitle()">🏠 モードをかえる</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- フィードバックポップアップ -->
+<div class="feedback-popup" id="feedback-popup">
+  <div class="popup-text" id="popup-text">せいかい！</div>
+  <div class="popup-coins" id="popup-coins"></div>
+</div>
+
+<script>
+// ===========================
+//  サウンドエンジン
+// ===========================
+const Sound = (() => {
+  let ctx = null;
+  const getCtx = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  };
+  const playTone = (freq, duration, type = 'sine', gain = 0.3, delay = 0) => {
+    try {
+      const c = getCtx();
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.connect(g);
+      g.connect(c.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+      g.gain.setValueAtTime(gain, c.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
+      osc.start(c.currentTime + delay);
+      osc.stop(c.currentTime + delay + duration);
+    } catch(e) {}
+  };
+  return {
+    tap: () => playTone(800, 0.05, 'square', 0.15),
+    correct: () => {
+      playTone(523, 0.12, 'sine', 0.3);
+      playTone(659, 0.12, 'sine', 0.3, 0.12);
+      playTone(784, 0.2, 'sine', 0.35, 0.24);
+    },
+    combo: () => {
+      playTone(784, 0.1, 'sine', 0.35);
+      playTone(988, 0.15, 'sine', 0.4, 0.1);
+      playTone(1175, 0.2, 'sine', 0.4, 0.22);
+    },
+    wrong: () => {
+      playTone(200, 0.15, 'sawtooth', 0.3);
+      playTone(150, 0.25, 'sawtooth', 0.3, 0.15);
+    },
+    timeup: () => {
+      playTone(440, 0.2, 'sine', 0.4);
+      playTone(330, 0.2, 'sine', 0.35, 0.22);
+      playTone(220, 0.5, 'sine', 0.4, 0.44);
+    },
+    fanfare: () => {
+      [523,659,784,1047].forEach((f,i) => playTone(f, 0.2, 'sine', 0.35, i*0.12));
+    }
+  };
+})();
+
+// ===========================
+//  状態管理
+// ===========================
+const State = {
+  mode: 'none',
+  timeLimit: 60,
+  phase: 'title',
+  timeLeft: 0,
+  score: 0,
+  combo: 0,
+  comboMultiplier: 1,
+  inputTarget: 'quotient',
+  problem: { dividend:0, divisor:0, quotient:0, remainder:0 },
+  quotientInput: '',
+  remainderInput: '',
+  highScores: { none:0, remainder:0 },
+  weakDivisors: {2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},
+  timerInterval: null,
+
+  load() {
+    try {
+      const hs = JSON.parse(localStorage.getItem('wariwari-highscores'));
+      if (hs) this.highScores = hs;
+      const wd = JSON.parse(localStorage.getItem('wariwari-weak'));
+      if (wd) this.weakDivisors = wd;
+    } catch(e) {}
+  },
+  save() {
+    localStorage.setItem('wariwari-highscores', JSON.stringify(this.highScores));
+    localStorage.setItem('wariwari-weak', JSON.stringify(this.weakDivisors));
+  },
+  getMultiplier() {
+    if (this.combo >= 7) return 5;
+    if (this.combo >= 5) return 3;
+    if (this.combo >= 3) return 2;
+    return 1;
+  }
+};
+
+// ===========================
+//  問題生成
+// ===========================
+const ProblemGen = {
+  random(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+  // SRS：ニガテ優先選択
+  pickDivisorNone() {
+    const weakEntries = Object.entries(State.weakDivisors)
+      .filter(([d]) => d >= 1)
+      .sort((a,b) => b[1]-a[1]);
+    if (weakEntries[0][1] > 0 && Math.random() < 0.35) {
+      // 上位ニガテ2つからランダム
+      const top = weakEntries.slice(0,2);
+      return parseInt(top[Math.floor(Math.random()*top.length)][0]);
+    }
+    return this.random(1, 9);
+  },
+  pickDivisorRemainder() {
+    const weakEntries = Object.entries(State.weakDivisors)
+      .filter(([d]) => d >= 2)
+      .sort((a,b) => b[1]-a[1]);
+    if (weakEntries[0][1] > 0 && Math.random() < 0.35) {
+      const top = weakEntries.slice(0,2);
+      return parseInt(top[Math.floor(Math.random()*top.length)][0]);
+    }
+    return this.random(2, 9);
+  },
+
+  generateNone() {
+    const divisor  = this.pickDivisorNone();
+    const quotient = this.random(1, 9);
+    const dividend = divisor * quotient;
+    return { dividend, divisor, quotient, remainder: 0 };
+  },
+  generateRemainder() {
+    const divisor   = this.pickDivisorRemainder();
+    const quotient  = this.random(1, 9);
+    const remainder = this.random(1, divisor - 1);
+    const dividend  = (divisor * quotient) + remainder;
+    return { dividend, divisor, quotient, remainder };
+  },
+  generate() {
+    return State.mode === 'none' ? this.generateNone() : this.generateRemainder();
+  }
+};
+
+// ===========================
+//  UI制御
+// ===========================
+const UI = {
+  selectMode(mode) {
+    State.mode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.mode === mode);
+    });
+  },
+  selectTime(t) {
+    State.timeLimit = t;
+    document.querySelectorAll('.time-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.dataset.time) === t);
+    });
+  },
+  showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  },
+  showTitle() {
+    this.showScreen('screen-title');
+    this.updateHSDisplay();
+  },
+  updateHSDisplay() {
+    document.getElementById('hs-none').textContent = State.highScores.none;
+    document.getElementById('hs-remainder').textContent = State.highScores.remainder;
+  },
+  renderProblem() {
+    const p = State.problem;
+    const pt = document.getElementById('problem-text');
+    if (State.mode === 'none') {
+      pt.innerHTML = `
+        <span>${p.dividend}</span>
+        <span class="problem-op">÷</span>
+        <span>${p.divisor}</span>
+        <span class="problem-eq">＝</span>
+        <span class="answer-box" id="box-q"></span>
+      `;
+    } else {
+      pt.innerHTML = `
+        <span>${p.dividend}</span>
+        <span class="problem-op">÷</span>
+        <span>${p.divisor}</span>
+        <span class="problem-eq">＝</span>
+        <span class="answer-box" id="box-q"></span>
+        <span class="amari-label">あまり</span>
+        <span class="answer-box" id="box-r"></span>
+      `;
+    }
+    this.updateBoxDisplay();
+    this.updateActiveBox();
+  },
+  updateBoxDisplay() {
+    const qBox = document.getElementById('box-q');
+    const rBox = document.getElementById('box-r');
+    if (qBox) qBox.textContent = State.quotientInput || '';
+    if (rBox) rBox.textContent = State.remainderInput || '';
+  },
+  updateActiveBox() {
+    const qBox = document.getElementById('box-q');
+    const rBox = document.getElementById('box-r');
+    if (qBox) qBox.classList.toggle('active', State.inputTarget === 'quotient');
+    if (rBox) rBox.classList.toggle('active', State.inputTarget === 'remainder');
+  },
+  updateTimer() {
+    const el = document.getElementById('timer-num');
+    el.textContent = State.timeLeft;
+    el.classList.toggle('danger', State.timeLeft <= 10);
+  },
+  updateScore() {
+    document.getElementById('score-num').textContent = State.score;
+  },
+  updateCombo() {
+    const el = document.getElementById('combo-display');
+    const num = document.getElementById('combo-num');
+    const multi = document.getElementById('combo-multi');
+    if (State.combo >= 3) {
+      el.classList.remove('hidden');
+      num.textContent = State.combo;
+      multi.textContent = State.comboMultiplier;
+    } else {
+      el.classList.add('hidden');
+    }
+  },
+  showKakuteiBtn(show) {
+    const btn = document.getElementById('kakutei-btn');
+    btn.classList.toggle('visible', show);
+  },
+  showFeedback(correct, coins) {
+    const popup = document.getElementById('feedback-popup');
+    const text = document.getElementById('popup-text');
+    const coinsEl = document.getElementById('popup-coins');
+    if (correct) {
+      text.textContent = 'せいかい！🎉';
+      text.style.color = '#16a34a';
+      coinsEl.textContent = `🪙 +${coins} コイン`;
+      popup.style.background = '#f0fdf4';
+    } else {
+      text.textContent = 'ざんねん… 😢';
+      text.style.color = '#dc2626';
+      coinsEl.textContent = '';
+      popup.style.background = '#fef2f2';
+    }
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 900);
+  },
+  flyCoins(count, x, y) {
+    for (let i = 0; i < Math.min(count, 6); i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'coin-fly';
+        el.textContent = '🪙';
+        el.style.left = (x + (Math.random()-0.5)*60) + 'px';
+        el.style.top = (y + (Math.random()-0.5)*30) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
+      }, i * 80);
+    }
+  },
+  setCharacter(state) {
+    // happy / worried / hurry
+    ['happy','worried','hurry'].forEach(s => {
+      document.getElementById('eyes-'+s).setAttribute('display', s === state ? '' : 'none');
+    });
+    document.getElementById('mouth-happy').setAttribute('display', state === 'happy' ? '' : 'none');
+    document.getElementById('mouth-worried').setAttribute('display', state === 'worried' ? '' : 'none');
+    document.getElementById('mouth-hurry').setAttribute('display', state === 'hurry' ? '' : 'none');
+  },
+  shakeScreen() {
+    const el = document.getElementById('screen-play');
+    el.classList.add('screen-shake');
+    setTimeout(() => el.classList.remove('screen-shake'), 400);
+  },
+  flashBox(target, type) {
+    const box = document.getElementById(target === 'quotient' ? 'box-q' : 'box-r');
+    if (!box) return;
+    box.classList.add(type + '-flash');
+    setTimeout(() => box.classList.remove(type + '-flash'), 400);
+  }
+};
+
+// ===========================
+//  入力制御
+// ===========================
+const Input = {
+  press(digit) {
+    if (State.phase !== 'playing') return;
+    Sound.tap();
+    const target = State.inputTarget;
+    if (target === 'quotient') {
+      if (State.quotientInput.length >= 2) return;
+      State.quotientInput += digit.toString();
+      // あまりなしモードは即判定
+      if (State.mode === 'none') {
+        Game.judge();
+      } else {
+        UI.updateBoxDisplay();
+      }
+    } else {
+      // あまり入力：1桁で即判定
+      if (State.remainderInput.length >= 1) return;
+      State.remainderInput += digit.toString();
+      UI.updateBoxDisplay();
+      Game.judge();
+    }
+  },
+  clear() {
+    if (State.phase !== 'playing') return;
+    Sound.tap();
+    if (State.inputTarget === 'quotient') State.quotientInput = '';
+    else State.remainderInput = '';
+    UI.updateBoxDisplay();
+  },
+  backspace() {
+    if (State.phase !== 'playing') return;
+    Sound.tap();
+    if (State.inputTarget === 'quotient') {
+      State.quotientInput = State.quotientInput.slice(0,-1);
+    } else {
+      State.remainderInput = State.remainderInput.slice(0,-1);
+    }
+    UI.updateBoxDisplay();
+  },
+  kakutei() {
+    if (State.phase !== 'playing') return;
+    if (State.mode !== 'remainder') return;
+    if (State.inputTarget !== 'quotient') return;
+    if (!State.quotientInput) return;
+    Sound.tap();
+    // 商を確定してあまり入力へ
+    State.inputTarget = 'remainder';
+    UI.updateActiveBox();
+  }
+};
+
+// ===========================
+//  ゲームロジック
+// ===========================
+const Game = {
+  start() {
+    clearInterval(State.timerInterval);
+    State.phase = 'playing';
+    State.score = 0;
+    State.combo = 0;
+    State.comboMultiplier = 1;
+    State.timeLeft = State.timeLimit;
+    State.inputTarget = 'quotient';
+    State.quotientInput = '';
+    State.remainderInput = '';
+
+    UI.showScreen('screen-play');
+    UI.showKakuteiBtn(State.mode === 'remainder');
+    UI.setCharacter('happy');
+    UI.updateScore();
+    UI.updateCombo();
+    UI.updateTimer();
+
+    this.nextProblem();
+
+    State.timerInterval = setInterval(() => {
+      State.timeLeft--;
+      UI.updateTimer();
+      if (State.timeLeft <= 10) UI.setCharacter('hurry');
+      if (State.timeLeft <= 0) {
+        clearInterval(State.timerInterval);
+        this.end();
+      }
+    }, 1000);
+  },
+
+  nextProblem() {
+    State.problem = ProblemGen.generate();
+    State.inputTarget = 'quotient';
+    State.quotientInput = '';
+    State.remainderInput = '';
+    UI.renderProblem();
+    UI.updateActiveBox();
+  },
+
+  judge() {
+    const p = State.problem;
+    let correct = false;
+
+    if (State.mode === 'none') {
+      const q = parseInt(State.quotientInput);
+      correct = (q === p.quotient);
+    } else {
+      // あまりありモード：商とあまりの両方を判定
+      const q = parseInt(State.quotientInput);
+      const r = parseInt(State.remainderInput);
+      correct = (q === p.quotient && r === p.remainder);
+    }
+
+    if (correct) {
+      this.onCorrect();
+    } else {
+      this.onWrong();
+    }
+  },
+
+  onCorrect() {
+    State.combo++;
+    State.comboMultiplier = State.getMultiplier();
+    const base = State.mode === 'remainder' ? 2 : 1;
+    const coins = base * State.comboMultiplier;
+    State.score += coins;
+
+    if (State.combo >= 7) {
+      Sound.combo();
+    } else {
+      Sound.correct();
+    }
+
+    UI.flashBox('quotient', 'correct');
+    if (State.mode === 'remainder') UI.flashBox('remainder', 'correct');
+    UI.showFeedback(true, coins);
+    UI.updateScore();
+    UI.updateCombo();
+
+    if (State.timeLeft > 10) UI.setCharacter('happy');
+
+    // コイン飛び出し
+    const rect = document.getElementById('problem-card').getBoundingClientRect();
+    UI.flyCoins(Math.min(coins, 5), rect.left + rect.width/2, rect.top + rect.height/2);
+
+    setTimeout(() => this.nextProblem(), 600);
+  },
+
+  onWrong() {
+    // ニガテ記録
+    const d = State.problem.divisor.toString();
+    State.weakDivisors[d] = (State.weakDivisors[d] || 0) + 1;
+    State.save();
+
+    State.combo = 0;
+    State.comboMultiplier = 1;
+
+    Sound.wrong();
+    UI.shakeScreen();
+    UI.showFeedback(false, 0);
+    UI.updateCombo();
+    UI.setCharacter('worried');
+
+    // 入力をリセット
+    if (State.inputTarget === 'remainder') {
+      // あまりだけリセット
+      State.remainderInput = '';
+    } else {
+      State.quotientInput = '';
+    }
+    UI.updateBoxDisplay();
+    UI.flashBox(State.inputTarget, 'wrong');
+
+    // 少し間をおいてから次へ（同じ問題を再チャレンジではなく次へ）
+    setTimeout(() => {
+      if (State.phase === 'playing') {
+        // あまりありで商が間違いの場合は最初に戻す
+        if (State.mode === 'remainder' && State.inputTarget === 'remainder') {
+          // あまりが間違いなら商入力に戻す
+          State.inputTarget = 'quotient';
+          State.quotientInput = '';
+          State.remainderInput = '';
+          UI.updateBoxDisplay();
+          UI.updateActiveBox();
+          if (State.timeLeft > 10) UI.setCharacter('happy');
+        } else {
+          this.nextProblem();
+        }
+      }
+    }, 800);
+  },
+
+  end() {
+    State.phase = 'result';
+    Sound.timeup();
+
+    // ハイスコア更新判定
+    let isNewHS = false;
+    if (State.score > State.highScores[State.mode]) {
+      State.highScores[State.mode] = State.score;
+      isNewHS = true;
+      Sound.fanfare();
+    }
+    State.save();
+
+    // リザルト画面更新
+    document.getElementById('result-score').textContent = State.score;
+    const badge = document.getElementById('hs-badge');
+    badge.style.display = isNewHS ? 'inline-block' : 'none';
+
+    // ニガテ表示
+    this.renderWeakList();
+
+    // メッセージ
+    document.getElementById('result-message').textContent = this.getMessage();
+
+    UI.showScreen('screen-result');
+    UI.updateHSDisplay();
+  },
+
+  renderWeakList() {
+    const list = document.getElementById('weak-list');
+    const entries = Object.entries(State.weakDivisors)
+      .filter(([,v]) => v > 0)
+      .sort((a,b) => b[1]-a[1])
+      .slice(0, 5);
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="weak-none">ニガテなし！すごい！🌟</div>';
+      return;
+    }
+    const max = entries[0][1];
+    list.innerHTML = entries.map(([d, cnt]) => `
+      <div class="weak-item">
+        <span>÷${d}</span>
+        <div class="weak-bar-bg">
+          <div class="weak-bar-fill" style="width:${(cnt/max)*100}%"></div>
+        </div>
+        <span class="weak-count">${cnt}回</span>
+      </div>
+    `).join('');
+  },
+
+  getMessage() {
+    const s = State.score;
+    if (s === 0) return '「つぎはきっとできる！いっしょにがんばろう！」🦀';
+    if (s < 10) return '「よくチャレンジしたね！すばらしい！」🦀';
+    if (s < 20) return '「わり算じょうずになってきたね！」🦀';
+    if (s < 35) return '「すごい！どんどんうまくなってるよ！」🦀🎉';
+    if (s < 50) return '「かんぺき！わり算マスターちかい！」🦀🌟';
+    return '「なんと！きみはわり算のたつじんだ！」🦀👑';
+  }
+};
+
+// ===========================
+//  物理キーボード対応
+// ===========================
+document.addEventListener('keydown', (e) => {
+  if (State.phase !== 'playing') return;
+  if (e.key >= '0' && e.key <= '9') {
+    Input.press(parseInt(e.key));
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    Input.backspace();
+  } else if (e.key === 'Enter') {
+    if (State.mode === 'remainder' && State.inputTarget === 'quotient') {
+      Input.kakutei();
+    }
+  } else if (e.key === 'Delete' || e.key === 'c' || e.key === 'C') {
+    Input.clear();
+  }
+});
+
+// ===========================
+//  初期化
+// ===========================
+State.load();
+UI.updateHSDisplay();
+</script>
+</body>
+</html>
