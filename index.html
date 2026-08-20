@@ -1466,6 +1466,9 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// インライン onclick からもモジュール内の操作を呼べるように公開
+Object.assign(window, { UI, Input, Game });
+
 // ===========================
 //  初期化
 // ===========================
