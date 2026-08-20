@@ -714,9 +714,6 @@
       <h1>わりわりアイランド</h1>
       <p>さんすう わり算 れんしゅうゲーム</p>
     </div>
-    <button class="quick-start" onclick="Game.startQuick()">🚀 まずは問題にちょうせん！</button>
-    <p class="quick-note">あまりなし・60びょうで、すぐにスタート</p>
-
     <div class="card">
       <div class="section-label">🎯 モードをえらぼう</div>
       <div class="mode-buttons">
@@ -733,6 +730,11 @@
       </div>
     </div>
 
+
+        <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
+      🚀 スタート！
+    </button>
+        <div class="badge-panel"><div class="badge-heading"><span>🏝️ わり算バッジ図鑑</span><span class="badge-count" id="badge-count">0 / 12</span></div><div id="badge-grid" class="badge-grid"></div></div>
     <div class="card">
       <div class="section-label">⏱️ じかんをえらぼう</div>
       <div class="time-buttons">
@@ -757,11 +759,6 @@
       </div>
     </div>
 
-    <div class="badge-panel"><div class="badge-heading"><span>🏝️ わり算バッジ図鑑</span><span class="badge-count" id="badge-count">0 / 12</span></div><div id="badge-grid" class="badge-grid"></div></div>
-
-    <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
-      🚀 スタート！
-    </button>
   </div>
 
   <!-- ===== ゲームプレイ画面 ===== -->
