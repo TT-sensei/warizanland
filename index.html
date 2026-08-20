@@ -215,6 +215,7 @@
     border-color: #e2e8f0;
   }
 
+  .level-buttons{display:flex;flex-direction:column;gap:8px}.level-btn{font-family:'M PLUS Rounded 1c',sans-serif;font-weight:900;border:3px solid #e2e8f0;border-radius:16px;padding:12px 16px;background:#f8fafc;color:var(--text-dark);cursor:pointer;text-align:left;transition:.15s}.level-btn strong{display:block;font-size:1.1rem}.level-btn small{display:block;margin-top:2px;color:#64748b;font-weight:400}.level-btn.selected{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#16a34a;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
   .time-buttons {
     display: flex;
     gap: 10px;
@@ -715,11 +716,14 @@
       <p>さんすう わり算 れんしゅうゲーム</p>
     </div>
 
-    <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
-      🚀 スタート！
-    </button>
-
-    <div class="badge-panel"><div class="badge-heading"><span>🏝️ わり算バッジ図鑑</span><span class="badge-count" id="badge-count">0 / 12</span></div><div id="badge-grid" class="badge-grid"></div></div>
+    <div class="card">
+      <div class="section-label">📈 レベルをえらぼう</div>
+      <div class="level-buttons">
+        <button class="level-btn selected" data-level="1" onclick="UI.selectLevel(1)"><strong>レベル1　まずはわり算</strong><small>1けた ÷ 1けた</small></button>
+        <button class="level-btn" data-level="2" onclick="UI.selectLevel(2)"><strong>レベル2　2けたにちょうせん</strong><small>2けた ÷ 1けた</small></button>
+        <button class="level-btn" data-level="3" onclick="UI.selectLevel(3)"><strong>レベル3　わり算名人</strong><small>3けた ÷ 1けた</small></button>
+      </div>
+    </div>
 
     <div class="card">
       <div class="section-label">🎯 モードをえらぼう</div>
@@ -736,6 +740,12 @@
         </button>
       </div>
     </div>
+
+    <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
+      🚀 スタート！
+    </button>
+
+    <div class="badge-panel"><div class="badge-heading"><span>🏝️ わり算バッジ図鑑</span><span class="badge-count" id="badge-count">0 / 12</span></div><div id="badge-grid" class="badge-grid"></div></div>
 
     <div class="card">
       <div class="section-label">⏱️ じかんをえらぼう</div>
@@ -943,6 +953,7 @@ const Sound = (() => {
 // ===========================
 const State = {
   mode: 'none',
+  level: 1,
   timeLimit: 60,
   phase: 'title',
   timeLeft: 0,
@@ -1011,18 +1022,21 @@ const ProblemGen = {
     return this.random(2, 9);
   },
 
+  makeProblem(divisor, withRemainder) {
+    const digits=[1,2,3][State.level-1];
+    let dividend,quotient,remainder;
+    do {
+      quotient=State.level===1?this.random(1,4):State.level===2?this.random(5,12):this.random(12,99);
+      remainder=withRemainder?this.random(1,divisor-1):0;
+      dividend=divisor*quotient+remainder;
+    } while(String(dividend).length!==digits);
+    return {dividend,divisor,quotient,remainder};
+  },
   generateNone() {
-    const divisor  = this.pickDivisorNone();
-    const quotient = this.random(1, 9);
-    const dividend = divisor * quotient;
-    return { dividend, divisor, quotient, remainder: 0 };
+    return this.makeProblem(this.pickDivisorNone(),false);
   },
   generateRemainder() {
-    const divisor   = this.pickDivisorRemainder();
-    const quotient  = this.random(1, 9);
-    const remainder = this.random(1, divisor - 1);
-    const dividend  = (divisor * quotient) + remainder;
-    return { dividend, divisor, quotient, remainder };
+    return this.makeProblem(this.pickDivisorRemainder(),true);
   },
   generate() {
     return State.mode === 'none' ? this.generateNone() : this.generateRemainder();
@@ -1033,6 +1047,10 @@ const ProblemGen = {
 //  UI制御
 // ===========================
 const UI = {
+  selectLevel(level) {
+    State.level=level;
+    document.querySelectorAll('.level-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.level,10)===level));
+  },
   selectMode(mode) {
     State.mode = mode;
     document.querySelectorAll('.mode-btn').forEach(b => {
@@ -1243,7 +1261,7 @@ const Input = {
 // ===========================
 const Game = {
   startQuick() {
-    State.mode='none'; State.timeLimit=60;
+    State.level=1; State.mode='none'; State.timeLimit=60;
     document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected',b.dataset.mode==='none'));
     document.querySelectorAll('.time-btn').forEach(b=>b.classList.toggle('selected',b.dataset.time==='60'));
     this.start();
@@ -1478,6 +1496,7 @@ document.addEventListener('keydown', (e) => {
 State.load();
 UI.updateHSDisplay();
 UI.renderBadges();
+UI.selectLevel(State.level);
 </script>
 </body>
 </html>
