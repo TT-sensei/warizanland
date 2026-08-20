@@ -141,6 +141,7 @@
     letter-spacing: 0.06em;
     line-height: 1.2;
   }
+  .quick-start{font-family:'M PLUS Rounded 1c',sans-serif;font-weight:900;font-size:1.55rem;border:0;border-radius:20px;padding:19px 20px;width:100%;background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;box-shadow:0 5px 0 #c2410c,var(--shadow);cursor:pointer;letter-spacing:.05em}.quick-start:active{transform:translateY(3px);box-shadow:0 2px 0 #c2410c}.quick-note{font-size:.82rem;color:#075985;font-weight:700;text-align:center;margin-top:-8px}.badge-panel{width:100%;background:rgba(255,255,255,.92);border-radius:22px;padding:16px;box-shadow:var(--shadow);border:3px solid #bae6fd}.badge-heading{display:flex;justify-content:space-between;align-items:center;color:var(--text-dark);font-size:1.05rem;margin-bottom:10px}.badge-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.badge-item{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:5px 3px;text-align:center;min-width:0}.badge-item img{width:100%;aspect-ratio:1;object-fit:contain;display:block}.badge-item span{display:block;font-size:.63rem;font-weight:900;line-height:1.2;color:var(--text-dark)}.badge-item.locked img{filter:grayscale(1);opacity:.2}.badge-item.locked span{color:#94a3b8}.badge-count{font-size:.8rem;color:#0ea5e9;font-weight:900}@media(max-width:430px){.badge-grid{grid-template-columns:repeat(4,1fr)}}
   .title-logo p {
     font-size: 0.95rem;
     color: var(--ocean-dark);
@@ -713,6 +714,8 @@
       <h1>わりわりアイランド</h1>
       <p>さんすう わり算 れんしゅうゲーム</p>
     </div>
+    <button class="quick-start" onclick="Game.startQuick()">🚀 まずは問題にちょうせん！</button>
+    <p class="quick-note">あまりなし・60びょうで、すぐにスタート</p>
 
     <div class="card">
       <div class="section-label">🎯 モードをえらぼう</div>
@@ -753,6 +756,8 @@
         </div>
       </div>
     </div>
+
+    <div class="badge-panel"><div class="badge-heading"><span>🏝️ わり算バッジ図鑑</span><span class="badge-count" id="badge-count">0 / 12</span></div><div id="badge-grid" class="badge-grid"></div></div>
 
     <button class="btn btn-coral" onclick="Game.start()" style="margin-top:4px;font-size:1.5rem;padding:20px;">
       🚀 スタート！
@@ -912,55 +917,25 @@
   <div class="popup-coins" id="popup-coins"></div>
 </div>
 
-<script>
+<script type="module">
+import { soundList } from 'https://tt-sensei.github.io/sounds-recipe-/sounds.js';
 // ===========================
 //  サウンドエンジン
 // ===========================
 const Sound = (() => {
-  let ctx = null;
-  const getCtx = () => {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-    return ctx;
-  };
-  const playTone = (freq, duration, type = 'sine', gain = 0.3, delay = 0) => {
-    try {
-      const c = getCtx();
-      const osc = c.createOscillator();
-      const g = c.createGain();
-      osc.connect(g);
-      g.connect(c.destination);
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, c.currentTime + delay);
-      g.gain.setValueAtTime(gain, c.currentTime + delay);
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
-      osc.start(c.currentTime + delay);
-      osc.stop(c.currentTime + delay + duration);
-    } catch(e) {}
+  let ctx=null;
+  const enabled=()=>localStorage.getItem('wariwari-sound')!=='off';
+  const play=(id,volume=.14)=>{
+    if(!enabled()) return;
+    try{ctx??=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();const recipe=soundList.find(s=>s.id===id);if(recipe)recipe.play(ctx,volume)}catch(e){}
   };
   return {
-    tap: () => playTone(800, 0.05, 'square', 0.15),
-    correct: () => {
-      playTone(523, 0.12, 'sine', 0.3);
-      playTone(659, 0.12, 'sine', 0.3, 0.12);
-      playTone(784, 0.2, 'sine', 0.35, 0.24);
-    },
-    combo: () => {
-      playTone(784, 0.1, 'sine', 0.35);
-      playTone(988, 0.15, 'sine', 0.4, 0.1);
-      playTone(1175, 0.2, 'sine', 0.4, 0.22);
-    },
-    wrong: () => {
-      playTone(200, 0.15, 'sawtooth', 0.3);
-      playTone(150, 0.25, 'sawtooth', 0.3, 0.15);
-    },
-    timeup: () => {
-      playTone(440, 0.2, 'sine', 0.4);
-      playTone(330, 0.2, 'sine', 0.35, 0.22);
-      playTone(220, 0.5, 'sine', 0.4, 0.44);
-    },
-    fanfare: () => {
-      [523,659,784,1047].forEach((f,i) => playTone(f, 0.2, 'sine', 0.35, i*0.12));
-    }
+    tap:()=>play('click',.08),
+    correct:()=>play('correct',.14),
+    combo:()=>play('combo5',.16),
+    wrong:()=>play('softFail',.12),
+    timeup:()=>play('timeUpSoft',.14),
+    fanfare:()=>play('clear',.18)
   };
 })();
 
@@ -981,6 +956,7 @@ const State = {
   remainderInput: '',
   highScores: { none:0, remainder:0 },
   weakDivisors: {2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},
+  badges: {},
   timerInterval: null,
 
   load() {
@@ -989,11 +965,14 @@ const State = {
       if (hs) this.highScores = hs;
       const wd = JSON.parse(localStorage.getItem('wariwari-weak'));
       if (wd) this.weakDivisors = wd;
+      const bd = JSON.parse(localStorage.getItem('wariwari-badges'));
+      if (bd) this.badges = bd;
     } catch(e) {}
   },
   save() {
     localStorage.setItem('wariwari-highscores', JSON.stringify(this.highScores));
     localStorage.setItem('wariwari-weak', JSON.stringify(this.weakDivisors));
+    localStorage.setItem('wariwari-badges', JSON.stringify(this.badges));
   },
   getMultiplier() {
     if (this.combo >= 7) return 5;
@@ -1020,7 +999,7 @@ const ProblemGen = {
       const top = weakEntries.slice(0,2);
       return parseInt(top[Math.floor(Math.random()*top.length)][0]);
     }
-    return this.random(1, 9);
+    return this.random(2, 9);
   },
   pickDivisorRemainder() {
     const weakEntries = Object.entries(State.weakDivisors)
@@ -1079,6 +1058,18 @@ const UI = {
   updateHSDisplay() {
     document.getElementById('hs-none').textContent = State.highScores.none;
     document.getElementById('hs-remainder').textContent = State.highScores.remainder;
+  },
+  renderBadges() {
+    const badges=[
+      ['first-step','はじめの一歩'],['combo','コンボ名人'],['clear','クリア'],
+      ['accuracy','正確無比'],['discovery','発見'],['explorer','探検家'],
+      ['focus','集中'],['growth','成長'],['hard-worker','努力家'],
+      ['keep-going','継続'],['mission-complete','達成'],['perfect','パーフェクト']
+    ];
+    const grid=document.getElementById('badge-grid'); if(!grid)return;
+    const earned=badges.filter(([id])=>State.badges[id]).length;
+    document.getElementById('badge-count').textContent=earned+' / '+badges.length;
+    grid.innerHTML=badges.map(([id,name])=>`<div class="badge-item ${State.badges[id]?'':'locked'}"><img src="https://tt-sensei.github.io/edu-assets/assets/badges/common/${id}/badge.png" alt="${name}"><span>${name}</span></div>`).join('');
   },
   renderProblem() {
     const p = State.problem;
@@ -1252,6 +1243,16 @@ const Input = {
 //  ゲームロジック
 // ===========================
 const Game = {
+  startQuick() {
+    State.mode='none'; State.timeLimit=60;
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected',b.dataset.mode==='none'));
+    document.querySelectorAll('.time-btn').forEach(b=>b.classList.toggle('selected',b.dataset.time==='60'));
+    this.start();
+  },
+  awardBadge(id) {
+    if(State.badges[id]) return;
+    State.badges[id]=Date.now(); State.save(); UI.renderBadges();
+  },
   start() {
     clearInterval(State.timerInterval);
     State.phase = 'playing';
@@ -1320,6 +1321,8 @@ const Game = {
     const coins = base * State.comboMultiplier;
     State.score += coins;
 
+    if (State.combo === 1) this.awardBadge('first-step');
+    if (State.combo >= 5) this.awardBadge('combo');
     if (State.combo >= 7) {
       Sound.combo();
     } else {
@@ -1396,6 +1399,10 @@ const Game = {
       isNewHS = true;
       Sound.fanfare();
     }
+    if(State.score>0) this.awardBadge('clear');
+    if(State.score>=25) this.awardBadge('growth');
+    if(State.score>=40) this.awardBadge('explorer');
+    if(Object.values(State.weakDivisors).every(v=>v===0)) this.awardBadge('perfect');
     State.save();
 
     // リザルト画面更新
@@ -1471,6 +1478,7 @@ document.addEventListener('keydown', (e) => {
 // ===========================
 State.load();
 UI.updateHSDisplay();
+UI.renderBadges();
 </script>
 </body>
 </html>
