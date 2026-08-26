@@ -20,13 +20,28 @@ export const NORMAL_MONSTERS=[
   ['frost-pup','モフウルフ',MON+'/zako/mofu-wolf-frost-pup.webp'],
   ['apple-mushroom','りんごキノコ',MON+'/zako/kinoko-apple-mushroom.webp'],
   ['snow-puff','ゆきまる',MON+'/zako/yukimaru-snow-puff.webp'],
-  ['star-bat','スターコウモリ',MON+'/zako/star-bat.webp']
+  ['star-bat','スターコウモリ',MON+'/zako/star-bat.webp'],
+  ['purun-little-magic-slime','ちびマジックスライム',MON+'/zako/purun-little-magic-slime.webp'],
+  ['berry-leafy','ベリリーフ',MON+'/zako/berry-leafy.webp'],
+  ['autumn-mushroom','あきいろキノコ',MON+'/zako/autumn-mushroom.webp'],
+  ['spring-moss-pup','はるもすウルフ',MON+'/zako/spring-moss-pup.webp'],
+  ['rainy-bat','あめふりコウモリ',MON+'/zako/rainy-bat.webp'],
+  ['moss-pebble-golem','こけいわゴーレム',MON+'/zako/moss-pebble-golem.webp'],
+  ['sunstone-golem','たいようせきゴーレム',MON+'/zako/sunstone-golem.webp'],
+  ['sand-ember-newt','すなひのこイモリ',MON+'/zako/sand-ember-newt.webp'],
+  ['tidal-newt','うみしおイモリ',MON+'/zako/tidal-newt.webp'],
+  ['ember-frost-pup','ひえひえモフウルフ',MON+'/zako/ember-frost-pup.webp'],
+  ['night-snow-puff','よるゆきまる',MON+'/zako/night-snow-puff.webp'],
+  ['sakura-snow-puff','さくらゆきまる',MON+'/zako/sakura-snow-puff.webp'],
+  ['sunset-puru','ゆうやけプルン',MON+'/zako/sunset-puru.webp'],
+  ['snow-mushroom','ゆきキノコ',MON+'/zako/snow-mushroom.webp'],
+  ['happa-squirrel-leafy','はっぱリスリーフィ',MON+'/zako/happa-squirrel-leafy.webp']
 ].map(([id,name,image])=>({id,name,image,kind:'normal'}));
 
 export const NORMAL_MONSTER_GROUPS=[
-  NORMAL_MONSTERS.slice(0,3),
-  NORMAL_MONSTERS.slice(3,6),
-  NORMAL_MONSTERS.slice(6,9),
+  NORMAL_MONSTERS.slice(0,6),
+  NORMAL_MONSTERS.slice(3,12),
+  NORMAL_MONSTERS.slice(6,18),
   NORMAL_MONSTERS
 ];
 
@@ -44,7 +59,12 @@ export const BOSS_CANDIDATES={
   final:[
     {id:'crimson-inferno-dragon',name:'紅炎竜インフェルノ',image:MON+'/boss/crimson-inferno-dragon.webp',kind:'boss'},
     {id:'azure-sky-dragon',name:'蒼天竜アズール',image:MON+'/boss/azure-sky-dragon.webp',kind:'boss'},
-    {id:'eclipse-shadow-phoenix',name:'蝕影鳥エクリプス',image:MON+'/boss/eclipse-shadow-phoenix.webp',kind:'boss'}
+    {id:'eclipse-shadow-phoenix',name:'蝕影鳥エクリプス',image:MON+'/boss/eclipse-shadow-phoenix.webp',kind:'boss'},
+    {id:'noxstella-star-eater',name:'星喰いノクステラ',image:MON+'/boss/noxstella-star-eater.webp',kind:'boss'},
+    {id:'lumina-moon-phoenix',name:'月光鳥ルミナ',image:MON+'/boss/lumina-moon-phoenix.webp',kind:'boss'},
+    {id:'flare-leo',name:'炎獅子フレア',image:MON+'/boss/flare-leo.webp',kind:'boss'},
+    {id:'prism-crystal-golem',name:'虹晶ゴーレム',image:MON+'/boss/prism-crystal-golem.webp',kind:'boss'},
+    {id:'volcano-boar-king',name:'火山猪王ボルケーノ',image:MON+'/boss/volcano-boar-king.webp',kind:'boss'}
   ]
 };
 
@@ -71,7 +91,13 @@ export const MATH_BADGES=[
   ['number-line','数直線マスター'],['strategy','作戦マスター'],['verification','確かめマスター'],
   ['logical-thinking','論理思考マスター'],['math-discovery','算数発見マスター'],['math-evidence','根拠説明マスター'],
   ['math-explainer','算数説明マスター'],['math-prediction','予想マスター'],['reverse-thinking','逆思考マスター'],
-  ['representation-link','表現つなぎマスター'],['visualize','見える化マスター']
+  ['representation-link','表現つなぎマスター'],['visualize','見える化マスター'],
+  ['another-way','別解発見マスター'],['classification','なかま分けマスター'],
+  ['fraction-sense','分数感覚マスター'],['generalization','きまり発見マスター'],
+  ['geometry','形の見方マスター'],['math-compare','比べ方マスター'],
+  ['measurement','はかり方マスター'],['pattern','パターン発見マスター'],
+  ['relationship','つながり発見マスター'],['simplify','かんたん整理マスター'],
+  ['spatial-sense','空間感覚マスター']
 ].map(([id,name])=>({id:'math-'+id,name,rarity:'common',category:'math',image:MATH_ASSETS+'/'+id+'/badge.webp'}));
 
 export const ALL_COLLECTIONS=[...COLLECTIONS,...MATH_BADGES];
