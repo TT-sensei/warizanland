@@ -555,14 +555,16 @@ function renderMap(){
 
 function allMonsters(){ return [...NORMAL_MONSTERS,...Object.values(BOSS_CANDIDATES).flat()]; }
 
+const STICKER_EFFECTS=['holo','rainbow','glitter','neon','aurora','prism'];
+function stickerEffect(){return STICKER_EFFECTS[Math.floor(Math.random()*STICKER_EFFECTS.length)]}
 function renderBook(){
   const grid=$('#book-grid');
   grid.innerHTML='';
   allMonsters().forEach((monster)=>{
     const got=state.monsterBook[monster.id];
     const card=document.createElement('article');
-    card.className='book-card';
-    card.innerHTML='<img class="'+(got?'':'locked-image')+'" src="'+monster.image+'" alt=""><strong>'+(got?monster.name:'？')+'</strong><span>'+(got?'撃破 '+(state.monsterDefeatCounts[monster.id]||0)+'回':'まだ出会っていません')+'</span>';
+    card.className='book-card'+(got?' sticker-monster-card effect-'+stickerEffect():'');
+    card.innerHTML='<img class="'+(got?'sticker-monster-image':'locked-image')+'" src="'+monster.image+'" alt=""><strong>'+(got?monster.name:'？')+'</strong><span>'+(got?'撃破 '+(state.monsterDefeatCounts[monster.id]||0)+'回':'まだ出会っていません')+'</span>';
     grid.append(card);
   });
 }
