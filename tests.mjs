@@ -16,8 +16,8 @@ assert.ok(level4.every((q)=>q.remainder>0 && q.remainder<q.divisor && q.dividend
 assert.ok(bossQuestions([1,2]).every((q)=>q.remainder===0 && q.divisor>=2 && q.divisor<=9));
 assert.ok(bossQuestions([4]).every((q)=>q.remainder>0));
 
-for (const n of [5,10,15,20,25,30]) assert.equal(comboAnimation(n),'special');
-for (const n of [1,2,3,4,6,7,8,9,11,12,13,14]) assert.equal(comboAnimation(n),'attack');
+for (const n of [10,15,20,25,30]) assert.equal(comboAnimation(n),'special');
+for (const n of [1,2,3,4,5,6,7,8,9,11,12,13,14]) assert.equal(comboAnimation(n),'attack');
 
 const rewardState=defaultState();
 assert.equal(getStageRewardExp(rewardState,1,20,'2026-08-25'),20);
