@@ -82,7 +82,7 @@ export class QuestionBag {
 }
 
 export function comboAnimation(combo) {
-  if (combo >= 5 && combo % 5 === 0) return 'special';
+  if (combo >= 10 && combo % 5 === 0) return 'special';
   return 'attack';
 }
 
