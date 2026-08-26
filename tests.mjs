@@ -3,6 +3,7 @@ import {
   defaultState, stageQuestions, getStageRewardExp, bossQuestions, comboAnimation,
   divisionQuestion, recordAttempt, TrainingScheduler, migrateState, isMaster
 } from './logic.js';
+import { NORMAL_MONSTERS, BOSS_CANDIDATES, ALL_COLLECTIONS, MATH_BADGES } from './data.js';
 
 const level1=stageQuestions(1);
 assert.ok(level1.length===36);
@@ -16,8 +17,14 @@ assert.ok(level4.every((q)=>q.remainder>0 && q.remainder<q.divisor && q.dividend
 assert.ok(bossQuestions([1,2]).every((q)=>q.remainder===0 && q.divisor>=2 && q.divisor<=9));
 assert.ok(bossQuestions([4]).every((q)=>q.remainder>0));
 
-for (const n of [10,15,20,25,30]) assert.equal(comboAnimation(n),'special');
-for (const n of [1,2,3,4,5,6,7,8,9,11,12,13,14]) assert.equal(comboAnimation(n),'attack');
+for (const n of [5,10,15,20,25,30]) assert.equal(comboAnimation(n),'special');
+for (const n of [1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19]) assert.equal(comboAnimation(n),'attack');
+
+assert.equal(NORMAL_MONSTERS.length,24);
+assert.equal(BOSS_CANDIDATES.mid1.length+BOSS_CANDIDATES.mid2.length,6);
+assert.equal(BOSS_CANDIDATES.final.length,8);
+assert.equal(MATH_BADGES.length,25);
+assert.equal(new Set(ALL_COLLECTIONS.map((item)=>item.id)).size,ALL_COLLECTIONS.length);
 
 const rewardState=defaultState();
 assert.equal(getStageRewardExp(rewardState,1,20,'2026-08-25'),20);
