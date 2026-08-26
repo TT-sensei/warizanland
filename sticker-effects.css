@@ -44,7 +44,7 @@
     drop-shadow(0 0 0 var(--sticker-outline))
     drop-shadow(0 0 0 var(--sticker-outline))
     drop-shadow(0 0 2px var(--sticker-outline))
-    drop-shadow(0 4px 3px #17255466);
+    drop-shadow(0 4px 3px #17255466) !important;
   transform:translateZ(0);
   animation:sticker-pop 2.9s ease-in-out infinite;
 }
@@ -54,7 +54,7 @@
 .sticker-monster-card.effect-neon{--sticker-outline:#d8fbff;--sticker-glow:#43dcff;background:linear-gradient(145deg,#e7fbff,#c9e8ff,#f1ddff)}
 .sticker-monster-card.effect-aurora{--sticker-outline:#efffd9;--sticker-glow:#84e6b0;background:linear-gradient(135deg,#d7fff077,#b9e7ff88,#e9d1ff88)}
 .sticker-monster-card.effect-prism{--sticker-outline:#fff;--sticker-glow:#ffb3ef;background:linear-gradient(125deg,#ffe0e066,#fff3a866,#bceaff88,#e1c7ff88)}
-.sticker-monster-card.effect-neon .sticker-monster-image{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 0 7px var(--sticker-glow)) drop-shadow(0 4px 3px #17255466)}
+.sticker-monster-card.effect-neon .sticker-monster-image{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 0 7px var(--sticker-glow)) drop-shadow(0 4px 3px #17255466) !important}
 .sticker-monster-card.effect-glitter::after{content:"✦  ✧  ✦";color:#fff7a7}
 .sticker-monster-card.effect-prism::after{content:"✧  ◇  ✦";color:#fff}
 @keyframes sticker-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
