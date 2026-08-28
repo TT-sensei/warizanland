@@ -21,3 +21,15 @@
 @media(max-width:600px){.home-screen::before{top:4%;right:2%;font-size:1.6rem}.home-head h1{font-size:clamp(1.9rem,9vw,3rem)}}
 
 .answer-slot{display:inline-flex!important;align-items:center;justify-content:center;min-width:1.25em;min-height:1.15em;padding:0 .12em;border-bottom:4px solid var(--blue);color:var(--blue);vertical-align:middle}.answer-slot.active{background:#eaf3ff;border-radius:9px;box-shadow:0 0 0 3px #d8eaff}.remainder-label{font-size:.58em;color:var(--rose);margin:0 .1em}.stage-card small{display:block;margin-top:8px;color:var(--muted);font-size:.76rem;line-height:1.25}.stage-card .stage-progress{display:block;margin-top:6px;font-size:.7rem;color:var(--green)}.level-note{margin:4px 0 12px;color:var(--muted);font-size:.85rem}.battle-feedback-note{font-size:.78rem;color:var(--muted)}
+
+/* 冒険マップ選択画面：草原の舞台 */
+#adventure{position:relative;isolation:isolate}
+#adventure::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 12% 10%,rgba(255,255,255,.62),transparent 25%),radial-gradient(circle at 90% 78%,rgba(227,169,47,.12),transparent 28%)}
+#adventure .screen-head,#adventure .stage-grid,#adventure .section-title,#adventure .boss-grid{position:relative;z-index:1}
+#adventure .screen-head{padding:12px 14px;border-radius:20px;background:rgba(255,253,248,.68);backdrop-filter:blur(4px)}
+#adventure .stage-card,#adventure .boss-card{background:rgba(255,255,255,.86);border-color:rgba(255,255,255,.78);box-shadow:0 10px 26px rgba(23,50,77,.16);backdrop-filter:blur(4px);transition:transform .15s,box-shadow .15s,border-color .15s}
+#adventure .stage-card:hover,#adventure .boss-card:hover{transform:translateY(-3px);border-color:#d6ad55;box-shadow:0 15px 30px rgba(23,50,77,.2)}
+#adventure .stage-card.master{background:rgba(255,249,231,.9)}
+#adventure .section-title{display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:999px;background:rgba(255,253,248,.76);box-shadow:0 6px 16px rgba(23,50,77,.08)}
+#adventure .section-title::after{content:'⚔️';font-size:1.05em}
+@media(max-width:600px){#adventure .screen-head{padding:9px 10px}#adventure .section-title{margin-top:22px}}
