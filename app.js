@@ -95,6 +95,10 @@ function renderCharacters(partnerMode){
 }
 
 function renderAdventure(){
+  const adventure=$('#adventure');
+  adventure.style.backgroundImage='linear-gradient(180deg,rgba(232,246,235,.68),rgba(255,253,248,.9) 88%),url("'+BACKGROUNDS.normal+'")';
+  adventure.style.backgroundSize='cover';
+  adventure.style.backgroundPosition='center';
   const stages=$('#stage-grid');
   stages.innerHTML='';
   LEVEL_IDS.forEach((level)=>{
